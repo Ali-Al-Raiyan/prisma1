@@ -1,0 +1,111 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mysql"
+  url      = env("DATABASE_URL")
+}
+
+model users{
+  id BigInt @id @default(autoincrement()) @db.UnsignedBigInt
+  firstName String @db.VarChar(200)
+  lastName String @db.VarChar(200)
+  email String @db.VarChar(200) @unique
+  mobile String @db.VarChar(200)
+  password String @db.VarChar(200)
+  otp String @db.VarChar(200) 
+  createdAt DateTime @default(now()) @db.Timestamp(0)
+  updatedAt DateTime @default(now()) @updatedAt @db.Timestamp(0)
+
+  categories categories[]
+  customers customers[]
+  products products[]
+  invoices invoices[]
+  invoiceProducts invoiceProducts[]
+}
+
+model categories{
+  id BigInt @id @default(autoincrement()) @db.UnsignedBigInt
+  name String @db.VarChar(200)
+  userID BigInt
+  users users @relation(fields: [userID], references: [id], onDelete: Restrict, onUpdate: Cascade)
+  createdAt DateTime @default(now()) @db.Timestamp(0)
+  updatedAt DateTime @default(now()) @updatedAt @db.Timestamp(0)
+
+  products products[]
+}
+
+model customers{
+  id BigInt @id @default(autoincrement()) @db.UnsignedBigInt
+  name String @db.VarChar(200)
+  email String @db.VarChar(200)
+  mobile String @db.VarChar(200)
+
+  userID BigInt
+  users users @relation(fields: [userID], references: [id], onDelete: Restrict, onUpdate: Cascade)
+
+  createdAt DateTime @default(now()) @db.Timestamp(0)
+  updatedAt DateTime @default(now()) @updatedAt @db.Timestamp(0)
+
+  invoices invoices[]
+}
+
+model products{
+  id BigInt @id @default(autoincrement()) @db.UnsignedBigInt
+
+  userID BigInt
+  users users @relation(fields: [userID], references: [id], onDelete: Restrict, onUpdate: Cascade)
+
+  categoryID BigInt
+  categories categories @relation(fields: [categoryID], references: [id], onDelete: Restrict, onUpdate: Cascade)
+
+  name String @db.VarChar(200)
+  price String @db.VarChar(200)
+  unit String @db.VarChar(200)
+  imgUrl String @db.VarChar(200)
+  createdAt DateTime @default(now()) @db.Timestamp(0)
+  updatedAt DateTime @default(now()) @updatedAt @db.Timestamp(0)
+
+  invoiceProducts invoiceProducts[]
+}
+
+model invoices{
+  id BigInt @id @default(autoincrement()) @db.UnsignedBigInt
+  total String @db.VarChar(200)
+  discount String @db.VarChar(200)
+  vat String @db.VarChar(200)
+  payable String @db.VarChar(200)
+
+  userID BigInt
+  users users @relation(fields: [userID], references: [id], onDelete: Restrict, onUpdate: Cascade)
+  
+  customerID BigInt
+  customers customers @relation(fields: [customerID], references: [id], onDelete: Restrict, onUpdate: Cascade)
+
+  createdAt DateTime @default(now()) @db.Timestamp(0)
+  updatedAt DateTime @default(now()) @updatedAt @db.Timestamp(0)
+
+  invoiceProducts invoiceProducts[]
+}
+
+model invoiceProducts{
+  id BigInt @id @default(autoincrement()) @db.UnsignedBigInt
+
+  invoiceID BigInt
+  invoices invoices @relation(fields: [invoiceID], references: [id], onDelete: Restrict, onUpdate: Cascade)
+
+  productID BigInt
+  products products @relation(fields: [productID], references: [id], onDelete: Restrict, onUpdate: Cascade)
+
+  userID BigInt
+  users users @relation(fields: [userID], references: [id], onDelete: Restrict, onUpdate: Cascade)
+
+  qty String @db.VarChar(200)
+  salePrice String @db.VarChar(200)
+  createdAt DateTime @default(now()) @db.Timestamp(0)
+  updatedAt DateTime @default(now()) @updatedAt @db.Timestamp(0)
+}
